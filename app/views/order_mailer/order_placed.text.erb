@@ -1,0 +1,60 @@
+ORDER CONFIRMATION
+==================
+
+Thank you for your order!
+
+Order Reference: <%= @order.reference %>
+Order Date: <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+Order Type: <%= @order.source.humanize %>
+
+CUSTOMER INFORMATION
+====================
+Name: <%= @customer.full_name %>
+Email: <%= @customer.email %>
+<% if @customer.phone %>Phone: <%= @customer.phone %><% end %>
+
+<% if @delivery_address %>
+DELIVERY ADDRESS
+================
+<%= @delivery_address.unit_floor_building + ", " if @delivery_address.unit_floor_building %><%= @delivery_address.street %>
+<%= @delivery_address.barangay %>, <%= @delivery_address.city %>
+<%= @delivery_address.province %><%= ", " + @delivery_address.postal_code if @delivery_address.postal_code %>
+<% if @delivery_address.landmark %>
+Landmark: <%= @delivery_address.landmark %>
+<% end %>
+<% if @delivery_address.remarks %>
+Delivery Remarks: <%= @delivery_address.remarks %>
+<% end %>
+
+<% end %>
+ORDER ITEMS
+===========
+<% @order_items.each do |item| %>
+<%= item.product_name %>
+Qty: <%= item.quantity %> × <%= item.unit_price.formatted %> = <%= item.total_price.formatted %>
+
+<% end %>
+
+SHIPPING & PAYMENT
+==================
+<% if @order.shipping_method_label %>Shipping Method: <%= @order.shipping_method_label %><% end %>
+<% if @order.payment_method_label %>Payment Method: <%= @order.payment_method_label %><% end %>
+
+ORDER SUMMARY
+=============
+Subtotal: <%= @order.subtotal.formatted %>
+<% if @order.shipping_fee_cents > 0 %>Shipping Fee: <%= @order.shipping_fee.formatted %><% end %>
+<% if @order.convenience_fee_cents > 0 %>Convenience Fee: <%= @order.convenience_fee.formatted %><% end %>
+<% if @order.discount_cents > 0 %>Discount (<%= @order.voucher_code %>): -<%= @order.discount.formatted %><% end %>
+-----------------------------------
+Total: <%= @order.total.formatted %>
+
+<% if @order.payment_link %>
+PAYMENT
+=======
+Complete your payment by visiting: <%= @order.payment_link %>
+
+<% end %>
+Thank you for choosing <%= @merchant.name %>!
+
+If you have any questions, please contact us at <%= @merchant.email %>

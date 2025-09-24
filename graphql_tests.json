@@ -1,0 +1,240 @@
+{
+  "info": {
+    "name": "Rails POS GraphQL API Test Suite",
+    "description": "Complete test suite for Rails POS GraphQL backend",
+    "version": "1.0.0",
+    "author": "Rails POS Development Team"
+  },
+  "baseUrl": "http://localhost:3000/graphql",
+  "tests": [
+    {
+      "name": "Test 1: Product Categories",
+      "type": "query",
+      "query": {
+        "query": "query { productCategories { id name position } }"
+      }
+    },
+    {
+      "name": "Test 2: Products Query",
+      "type": "query", 
+      "query": {
+        "query": "query { products { id name description priceCents currency productType active } }"
+      }
+    },
+    {
+      "name": "Test 3: Products with Filter",
+      "type": "query",
+      "query": {
+        "query": "query($filter: ProductsFilterInput) { products(filter: $filter) { id name priceCents } }",
+        "variables": {
+          "filter": {
+            "categoryId": "5",
+            "active": true
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 4: Orders Query",
+      "type": "query",
+      "query": {
+        "query": "query { orders { id reference status totalCents createdAt } }"
+      }
+    },
+    {
+      "name": "Test 5: Specific Order by ID",
+      "type": "query",
+      "query": {
+        "query": "query($id: ID!) { order(id: $id) { id reference status totalCents } }",
+        "variables": {
+          "id": "2"
+        }
+      }
+    },
+    {
+      "name": "Test 6: Customers Search",
+      "type": "query",
+      "query": {
+        "query": "query($search: CustomersSearchInput!) { customers(search: $search) { id firstName lastName email } }",
+        "variables": {
+          "search": {
+            "term": "john"
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 7: Payment Options",
+      "type": "query",
+      "query": {
+        "query": "query { paymentOptions { code label convenienceFeeCents } }"
+      }
+    },
+    {
+      "name": "Test 8: Shipping Options",
+      "type": "query",
+      "query": {
+        "query": "query($input: ShippingOptionsInput!) { shippingOptions(input: $input) { code label feeCents } }",
+        "variables": {
+          "input": {
+            "delivery": {
+              "line1": "123 Main St",
+              "city": "New York",
+              "state": "NY",
+              "postalCode": "10001",
+              "country": "US"
+            },
+            "items": [
+              {
+                "productId": "12",
+                "quantity": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 9: Create Product Category",
+      "type": "mutation",
+      "query": {
+        "query": "mutation($input: CreateCategoryInput!) { createCategory(input: $input) { category { id name position } errors { message } } }",
+        "variables": {
+          "input": {
+            "name": "Test Category 2",
+            "position": 6
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 10: Create Product",
+      "type": "mutation",
+      "query": {
+        "query": "mutation($input: CreateProductInput!) { createProduct(input: $input) { product { id name priceCents } errors { message } } }",
+        "variables": {
+          "input": {
+            "input": {
+              "name": "Test Product 2",
+              "description": "Another test product",
+              "categoryId": "5",
+              "priceCents": 1800,
+              "currency": "USD",
+              "productType": "PHYSICAL"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 11: Update Product",
+      "type": "mutation",
+      "query": {
+        "query": "mutation($input: UpdateProductInput!) { updateProduct(input: $input) { product { id name priceCents } errors { message } } }",
+        "variables": {
+          "input": {
+            "id": "12",
+            "input": {
+              "name": "Updated Product Name v2",
+              "priceCents": 2200
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 12: Create Order",
+      "type": "mutation",
+      "query": {
+        "query": "mutation($input: CreateOrderInput!) { createOrder(input: $input) { order { id reference totalCents } errors { message } } }",
+        "variables": {
+          "input": {
+            "input": {
+              "source": "IN_STORE",
+              "items": [
+                {
+                  "productId": "12",
+                  "quantity": 1
+                }
+              ],
+              "customer": {
+                "firstName": "Jane",
+                "lastName": "Smith",
+                "email": "jane.smith@example.com",
+                "phone": "555-5678"
+              },
+              "paymentMethodCode": "cash"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 13: Confirm Order",
+      "type": "mutation",
+      "query": {
+        "query": "mutation($input: ConfirmOrderInput!) { confirmOrder(input: $input) { order { id reference status totalCents } errors { message } } }",
+        "variables": {
+          "input": {
+            "id": "2"
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 14: Invalid Query (Should return error)",
+      "type": "error_test",
+      "query": {
+        "query": "query { nonExistentField }"
+      }
+    },
+    {
+      "name": "Test 15: Missing Required Arguments",
+      "type": "error_test", 
+      "query": {
+        "query": "query { customers { id firstName } }"
+      }
+    },
+    {
+      "name": "Test 16: Invalid Input Types",
+      "type": "error_test",
+      "query": {
+        "query": "mutation($input: CreateCategoryInput!) { createCategory(input: $input) { category { id } errors { message } } }",
+        "variables": {
+          "input": {
+            "name": "",
+            "position": "invalid"
+          }
+        }
+      }
+    },
+    {
+      "name": "Test 17: Schema Types",
+      "type": "introspection",
+      "query": {
+        "query": "query { __schema { types { name kind } } }"
+      }
+    },
+    {
+      "name": "Test 18: Available Queries",
+      "type": "introspection",
+      "query": {
+        "query": "query { __schema { queryType { fields { name type { name } } } } }"
+      }
+    },
+    {
+      "name": "Test 19: Available Mutations",
+      "type": "introspection",
+      "query": {
+        "query": "query { __schema { mutationType { fields { name type { name } } } } }"
+      }
+    },
+    {
+      "name": "Test 20: Specific Type Introspection",
+      "type": "introspection",
+      "query": {
+        "query": "query { __type(name: \"ProductsFilterInput\") { name inputFields { name type { name } } } }"
+      }
+    }
+  ]
+}
