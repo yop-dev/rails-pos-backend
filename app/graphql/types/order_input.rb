@@ -8,6 +8,7 @@ module Types
     argument :customer_id, ID, required: false
     argument :delivery_address, Types::AddressInput, required: false
     argument :payment_method_code, String, required: true
+    argument :shipping_method_code, String, required: false
     argument :notes, String, required: false
   end
 end

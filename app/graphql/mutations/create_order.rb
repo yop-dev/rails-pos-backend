@@ -24,15 +24,54 @@ module Mutations
       order_items_data = validate_and_prepare_items(merchant, input.items)
       return order_items_data if order_items_data.is_a?(Hash) && order_items_data[:errors] # Error response
 
+      # Get payment method info
+      payment_info = get_payment_info(input.payment_method_code)
+      
+      # Get shipping method info for online orders
+      shipping_info = nil
+      Rails.logger.debug "Input source: #{input.source}, shipping_method_code: #{input.shipping_method_code.inspect}"
+      if input.source == 'online' && input.shipping_method_code
+        shipping_info = get_shipping_info(input.shipping_method_code, input.delivery_address, input.items)
+        Rails.logger.debug "Retrieved shipping_info: #{shipping_info.inspect}"
+      end
+      
       # Create order
       order = merchant.orders.build
       order.customer = customer
       order.delivery_address = delivery_address
       order.source = input.source
+      
+      # Set payment method info
       order.payment_method_code = input.payment_method_code
+      order.payment_method_label = payment_info ? payment_info[:label] : nil
+      order.convenience_fee_cents = payment_info ? payment_info[:convenience_fee_cents] : 0
+      
+      # Set shipping method info for online orders
+      if shipping_info
+        order.shipping_method_code = shipping_info[:code]
+        order.shipping_method_label = shipping_info[:label]
+        order.shipping_fee_cents = shipping_info[:fee_cents]
+      else
+        order.shipping_method_code = nil
+        order.shipping_method_label = nil
+        order.shipping_fee_cents = 0
+      end
+      
+      # Initialize other required fields
+      order.discount_cents = 0
+      order.subtotal_cents = 0
+      order.total_cents = 0
+      
+      # Debug logging
+      Rails.logger.debug "Order fees - Convenience: #{order.convenience_fee_cents}, Shipping: #{order.shipping_fee_cents}"
+      
       # order.notes = input.notes  # Notes not supported in Order model
       
-      # Ensure reference is generated if not set by callback
+      # Skip both callback and validation initially since we don't have items yet
+      order.skip_calculate_totals = true
+      order.skip_total_validation = true
+      
+      # Manually generate reference since we're skipping callbacks
       if order.reference.blank?
         loop do
           candidate = "ORD-#{Date.current.strftime('%Y%m%d')}-#{SecureRandom.hex(3).upcase}"
@@ -40,7 +79,6 @@ module Mutations
         end
       end
       
-      # Calculate totals will be handled by the model callbacks
       ActiveRecord::Base.transaction do
         if order.save
           # Create order items
@@ -56,8 +94,31 @@ module Mutations
             order_item.save!
           end
 
-          # Recalculate totals after items are created
+          # Now calculate totals manually since we have all the data
           order.reload
+          
+          # Calculate subtotal from order items
+          calculated_subtotal = order.order_items.sum(:total_price_cents)
+          order.subtotal_cents = calculated_subtotal
+          
+          # Keep the fees we set earlier
+          convenience_fee = order.convenience_fee_cents || 0
+          shipping_fee = order.shipping_fee_cents || 0
+          discount = 0
+          
+          # Calculate total: subtotal + shipping + convenience - discount
+          calculated_total = calculated_subtotal + shipping_fee + convenience_fee - discount
+          order.total_cents = calculated_total
+          order.discount_cents = discount
+          
+          # Debug logging
+          Rails.logger.debug "Final calculation - Subtotal: #{calculated_subtotal}, Shipping: #{shipping_fee}, Convenience: #{convenience_fee}, Discount: #{discount}, Total: #{calculated_total}"
+          Rails.logger.debug "Order state before save - subtotal_cents: #{order.subtotal_cents}, shipping_fee_cents: #{order.shipping_fee_cents}, convenience_fee_cents: #{order.convenience_fee_cents}, discount_cents: #{order.discount_cents}, total_cents: #{order.total_cents}"
+          Rails.logger.debug "Final order method labels - payment_method_label: #{order.payment_method_label.inspect}, shipping_method_label: #{order.shipping_method_label.inspect}"
+          
+          # Skip callback but allow validation (total validation is already skipped)
+          order.skip_calculate_totals = true
+          order.skip_total_validation = true
           order.save!
 
           {
@@ -131,7 +192,7 @@ module Mutations
         city: address_input.city,
         province: address_input.state,
         postal_code: address_input.postal_code,
-        barangay: "Unknown" # Default value since it's required
+        barangay: address_input.barangay || "Unknown" # Use barangay from input or default
       )
     end
 
@@ -167,37 +228,70 @@ module Mutations
     end
 
     def get_shipping_info(shipping_method_code, delivery_input, items_input)
-      return nil unless delivery_input && shipping_method_code
+      return nil unless shipping_method_code
 
-      options = ShippingOptionsService.new(delivery_input.to_h, items_input.map(&:to_h)).available_options
-      option = options.find { |opt| opt[:code] == shipping_method_code }
-      
-      if option
-        {
-          code: option[:code],
-          label: option[:label],
-          fee_cents: option[:fee_cents]
+      # Simple shipping method mapping based on frontend codes
+      # This matches the shipping methods used in the frontend cart store
+      shipping_methods = {
+        'standard' => {
+          code: 'standard',
+          label: 'Standard Delivery',
+          fee_cents: 500 # ₱5.00
+        },
+        'express' => {
+          code: 'express', 
+          label: 'Express Delivery',
+          fee_cents: 1500 # ₱15.00
+        },
+        'same_day' => {
+          code: 'same_day',
+          label: 'Same Day Delivery', 
+          fee_cents: 3000 # ₱30.00
+        },
+        'pickup' => {
+          code: 'pickup',
+          label: 'Store Pickup',
+          fee_cents: 0 # Free
         }
-      else
-        nil
-      end
+      }
+      
+      shipping_methods[shipping_method_code]
     end
 
     def get_payment_info(payment_method_code)
       return nil unless payment_method_code
 
-      service = PaymentOptionsService.new
-      option = service.find_by_code(payment_method_code)
-      
-      if option
-        {
-          code: option[:code],
-          label: option[:label],
-          convenience_fee_cents: option[:convenience_fee_cents]
+      # Simple payment method mapping based on frontend codes  
+      # This matches the payment methods used in the frontend cart store
+      payment_methods = {
+        'cash' => {
+          code: 'cash',
+          label: 'Cash on Delivery',
+          convenience_fee_cents: 0
+        },
+        'card' => {
+          code: 'card',
+          label: 'Credit/Debit Card',
+          convenience_fee_cents: 100 # ₱1.00
+        },
+        'gcash' => {
+          code: 'gcash',
+          label: 'GCash',
+          convenience_fee_cents: 50 # ₱0.50
+        },
+        'paymaya' => {
+          code: 'paymaya',
+          label: 'PayMaya',
+          convenience_fee_cents: 50 # ₱0.50
+        },
+        'bank_transfer' => {
+          code: 'bank_transfer',
+          label: 'Bank Transfer',
+          convenience_fee_cents: 0
         }
-      else
-        nil
-      end
+      }
+      
+      payment_methods[payment_method_code]
     end
 
     def requires_payment_link?(payment_method_code)

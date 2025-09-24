@@ -58,17 +58,48 @@ module Types
     end
 
     def customers(search:, first: nil, after: nil)
+      start_time = Time.current
       scope = current_merchant.customers
+      search_type = nil
+      search_value = nil
       
       if search[:email]
+        search_type = 'email'
+        search_value = search[:email]
         scope = scope.search_by_email(search[:email])
       elsif search[:phone]
+        search_type = 'phone'
+        search_value = search[:phone]
         scope = scope.search_by_phone(search[:phone])
       elsif search[:term]
+        search_type = 'term'
+        search_value = search[:term]
         scope = scope.search_by_term(search[:term])
       end
       
-      scope.order(:first_name, :last_name)
+      results = scope.order(:first_name, :last_name)
+      end_time = Time.current
+      duration = (end_time - start_time) * 1000 # Convert to milliseconds
+      
+      # Log slow queries (> 500ms) for monitoring
+      if duration > 500
+        Rails.logger.warn(
+          "[SLOW_CUSTOMER_SEARCH] Duration: #{duration.round(2)}ms, " +
+          "Type: #{search_type}, Value: #{search_value&.truncate(50)}, " +
+          "Results: #{results.count}, Merchant: #{current_merchant.id}"
+        )
+      end
+      
+      # Log all searches in development for debugging
+      if Rails.env.development?
+        Rails.logger.info(
+          "[CUSTOMER_SEARCH] Duration: #{duration.round(2)}ms, " +
+          "Type: #{search_type}, Value: #{search_value&.truncate(50)}, " +
+          "Results: #{results.count}"
+        )
+      end
+      
+      results
     end
 
     def orders

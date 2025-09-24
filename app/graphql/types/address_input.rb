@@ -8,5 +8,6 @@ module Types
     argument :state, String, required: false, description: "State/Province"
     argument :postal_code, String, required: true, description: "Postal code"
     argument :country, String, required: true, description: "Country"
+    argument :barangay, String, required: false, description: "Barangay"
   end
 end

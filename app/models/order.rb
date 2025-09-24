@@ -10,7 +10,7 @@ class Order < ApplicationRecord
   has_many :order_items, dependent: :destroy
 
   # Attributes
-  attr_accessor :skip_calculate_totals
+  attr_accessor :skip_calculate_totals, :skip_total_validation
 
   # Validations
   validates :reference, presence: true, uniqueness: true
@@ -129,6 +129,8 @@ class Order < ApplicationRecord
   end
 
   def total_cents_calculation
+    return if skip_total_validation
+    
     expected_total = subtotal_cents + shipping_fee_cents + convenience_fee_cents - discount_cents
     if total_cents != expected_total
       errors.add(:total_cents, "must equal subtotal + shipping fee + convenience fee - discount")

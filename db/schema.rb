@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 7) do
+ActiveRecord::Schema[7.1].define(version: 8) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
   create_table "addresses", force: :cascade do |t|
@@ -37,9 +38,14 @@ ActiveRecord::Schema[7.1].define(version: 7) do
     t.string "last_name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_customers_on_email_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["first_name"], name: "index_customers_on_first_name_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["last_name"], name: "index_customers_on_last_name_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["merchant_id", "email"], name: "index_customers_on_merchant_id_and_email", unique: true
+    t.index ["merchant_id", "first_name", "last_name"], name: "index_customers_on_merchant_and_names"
     t.index ["merchant_id", "phone"], name: "index_customers_on_merchant_id_and_phone"
     t.index ["merchant_id"], name: "index_customers_on_merchant_id"
+    t.index ["phone"], name: "index_customers_on_phone_trgm", opclass: :gin_trgm_ops, where: "(phone IS NOT NULL)", using: :gin
   end
 
   create_table "merchants", force: :cascade do |t|
