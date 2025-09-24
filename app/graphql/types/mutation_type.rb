@@ -17,5 +17,8 @@ module Types
     field :create_order, mutation: Mutations::CreateOrder
     field :confirm_order, mutation: Mutations::ConfirmOrder
     field :complete_order, mutation: Mutations::CompleteOrder
+
+    # Customer mutations
+    field :create_customer, mutation: Mutations::CreateCustomer
   end
 end

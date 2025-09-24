@@ -31,20 +31,19 @@ module Mutations
         end
       end
 
-      # Handle photo upload (temporarily disabled)
-      # TODO: Implement proper GraphQL Upload scalar support
-      # if input.photo
-      #   upload_result = CloudinaryService.upload_product_photo(input.photo, merchant.id)
-      #   if upload_result[:error]
-      #     return {
-      #       product: nil,
-      #       errors: [{ message: "Photo upload failed: #{upload_result[:error]}", path: ["photo"] }]
-      #     }
-      #   end
-      #   
-      #   product.photo_public_id = upload_result[:public_id]
-      #   product.photo_url = upload_result[:url]
-      # end
+      # Handle photo upload
+      if input.photo
+        upload_result = CloudinaryService.upload_product_photo(input.photo, merchant.id)
+        if upload_result[:error]
+          return {
+            product: nil,
+            errors: [{ message: "Photo upload failed: #{upload_result[:error]}", path: ["photo"] }]
+          }
+        end
+        
+        product.photo_public_id = upload_result[:public_id]
+        product.photo_url = upload_result[:url]
+      end
 
       if product.save
         {

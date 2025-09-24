@@ -1,13 +1,26 @@
 class GraphqlController < ApplicationController
+  include GraphqlMultipart
+  
   # If accessing from outside this domain, nullify the session
   # This allows for outside API access while preventing CSRF attacks,
   # but you'll have to authenticate your user separately
   # protect_from_forgery with: :null_session
 
   def execute
-    variables = prepare_variables(params[:variables])
-    query = params[:query]
-    operation_name = params[:operationName]
+    # Try to process multipart request first
+    multipart_data = process_multipart_request
+    
+    if multipart_data
+      # Use data from multipart form
+      query = multipart_data['query']
+      variables = prepare_variables(multipart_data['variables'])
+      operation_name = multipart_data['operationName']
+    else
+      # Use regular params
+      variables = prepare_variables(params[:variables])
+      query = params[:query]
+      operation_name = params[:operationName]
+    end
     context = {
       # current_merchant would be set based on authentication
       # For development, we'll just use the first merchant

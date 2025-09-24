@@ -8,6 +8,6 @@ module Types
     argument :price_cents, Integer, required: true, description: "Price in cents"
     argument :currency, String, required: false, default_value: "PHP", description: "Currency code"
     argument :product_type, Types::ProductTypeEnum, required: false, default_value: "physical", description: "Product type"
-    argument :photo, GraphQL::Types::String, required: false, description: "Product photo to upload (temporarily using String until Upload is configured)"
+    argument :photo, Types::Upload, required: false, description: "Product photo to upload"
   end
 end

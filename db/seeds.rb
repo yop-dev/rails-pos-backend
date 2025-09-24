@@ -66,29 +66,113 @@ products.each do |prod_attrs|
   puts "Created product: #{product.name} (#{product.price.formatted})"
 end
 
-# Create a sample customer
-customer = merchant.customers.find_or_create_by!(email: "john@example.com") do |c|
-  c.first_name = "John"
-  c.last_name = "Doe"
-  c.phone = "09171234567"
-end
+# Create sample customers
+customers_data = [
+  {
+    email: "john@example.com",
+    first_name: "John",
+    last_name: "Doe",
+    phone: "09171234567",
+    address: {
+      street: "456 Sample Street",
+      unit_floor_building: "Unit 2B",
+      barangay: "Barangay Santo Domingo",
+      city: "Quezon City",
+      province: "Metro Manila",
+      postal_code: "1114",
+      landmark: "Near SM North EDSA"
+    }
+  },
+  {
+    email: "maria.santos@gmail.com",
+    first_name: "Maria",
+    last_name: "Santos",
+    phone: "09181234567",
+    address: {
+      street: "789 Luna Street",
+      unit_floor_building: "Apartment 3A",
+      barangay: "Barangay San Antonio",
+      city: "Makati City",
+      province: "Metro Manila",
+      postal_code: "1200",
+      landmark: "Near Ayala Triangle"
+    }
+  },
+  {
+    email: "jose.rizal@email.com",
+    first_name: "Jose",
+    last_name: "Rizal",
+    phone: "09191234567",
+    address: {
+      street: "101 Rizal Avenue",
+      barangay: "Barangay Heroes",
+      city: "Manila",
+      province: "Metro Manila",
+      postal_code: "1000",
+      landmark: "Near Rizal Park"
+    }
+  },
+  {
+    email: "ana.cruz@yahoo.com",
+    first_name: "Ana",
+    last_name: "Cruz",
+    phone: "09201234567",
+    address: {
+      street: "555 Del Pilar Street",
+      unit_floor_building: "House 15",
+      barangay: "Barangay Del Pilar",
+      city: "Quezon City",
+      province: "Metro Manila",
+      postal_code: "1105",
+      landmark: "Near UP Diliman"
+    }
+  },
+  {
+    email: "miguel.rodriguez@hotmail.com",
+    first_name: "Miguel",
+    last_name: "Rodriguez",
+    phone: "09211234567",
+    address: {
+      street: "321 Bonifacio Street",
+      barangay: "Barangay Poblacion",
+      city: "Pasig City",
+      province: "Metro Manila",
+      postal_code: "1600",
+      landmark: "Near Ortigas Center"
+    }
+  }
+]
 
-# Create a sample address for the customer
-address = customer.addresses.find_or_create_by!(street: "456 Sample Street") do |a|
-  a.unit_floor_building = "Unit 2B"
-  a.barangay = "Barangay Santo Domingo"
-  a.city = "Quezon City"
-  a.province = "Metro Manila"
-  a.postal_code = "1114"
-  a.landmark = "Near SM North EDSA"
+customers_data.each do |customer_data|
+  customer = merchant.customers.find_or_create_by!(email: customer_data[:email]) do |c|
+    c.first_name = customer_data[:first_name]
+    c.last_name = customer_data[:last_name]
+    c.phone = customer_data[:phone]
+  end
+  
+  # Create address for the customer
+  address_data = customer_data[:address]
+  address = customer.addresses.find_or_create_by!(street: address_data[:street]) do |a|
+    a.unit_floor_building = address_data[:unit_floor_building]
+    a.barangay = address_data[:barangay]
+    a.city = address_data[:city]
+    a.province = address_data[:province]
+    a.postal_code = address_data[:postal_code]
+    a.landmark = address_data[:landmark]
+  end
+  
+  puts "Created customer: #{customer.full_name} (#{customer.email})"
+  puts "  Address: #{address.display_address}"
 end
-
-puts "Created customer: #{customer.full_name}"
-puts "Created address: #{address.display_address}"
 
 puts "Sample data created successfully!"
 puts "\nYou can now test the GraphQL API at http://localhost:3000/graphiql"
 puts "Sample merchant: #{merchant.name} (#{merchant.email})"
-puts "Sample customer: #{customer.full_name} (#{customer.email})"
+puts "Sample customers created: #{merchant.customers.count}"
 puts "Products created: #{merchant.products.count}"
 puts "Categories created: #{merchant.product_categories.count}"
+
+puts "\nCustomer emails to test search:"
+merchant.customers.each do |customer|
+  puts "  - #{customer.email} (#{customer.full_name})"
+end

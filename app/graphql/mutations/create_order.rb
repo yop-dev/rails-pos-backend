@@ -124,16 +124,15 @@ module Mutations
     end
 
     def create_delivery_address(customer, address_input)
-      # Create a simple address object (assuming Address model exists)
-      # For now, let's create a simple hash structure
-      {
-        line1: address_input.line1,
-        line2: address_input.line2,
+      # Create an actual Address record
+      customer.addresses.create!(
+        street: address_input.line1,
+        unit_floor_building: address_input.line2,
         city: address_input.city,
-        state: address_input.state,
+        province: address_input.state,
         postal_code: address_input.postal_code,
-        country: address_input.country
-      }
+        barangay: "Unknown" # Default value since it's required
+      )
     end
 
     def validate_and_prepare_items(merchant, items_input)

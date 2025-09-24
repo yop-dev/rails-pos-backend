@@ -3,8 +3,20 @@ class CloudinaryService
     return { public_id: nil, url: nil } unless file
 
     begin
+      # Handle different file input types
+      file_path = if file.respond_to?(:tempfile)
+        # ActionDispatch::Http::UploadedFile
+        file.tempfile.path
+      elsif file.respond_to?(:path)
+        # File or Tempfile
+        file.path
+      else
+        # Assume it's already a path or file-like object
+        file
+      end
+
       result = Cloudinary::Uploader.upload(
-        file.tempfile.path,
+        file_path,
         folder: "merchants/#{merchant_id}/products",
         resource_type: "auto",
         transformation: [
