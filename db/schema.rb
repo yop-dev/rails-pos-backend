@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 9) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_25_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -130,6 +130,17 @@ ActiveRecord::Schema[7.1].define(version: 9) do
     t.index ["merchant_id", "product_type"], name: "index_products_on_merchant_id_and_product_type"
     t.index ["merchant_id"], name: "index_products_on_merchant_id"
     t.index ["product_category_id"], name: "index_products_on_product_category_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "firstName", null: false
+    t.string "lastName", null: false
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.string "role", default: "staff", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "addresses", "customers"
