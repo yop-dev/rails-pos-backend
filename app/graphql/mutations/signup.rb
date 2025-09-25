@@ -1,20 +1,25 @@
 module Mutations
-  class Login < BaseMutation
-    description "Authenticate a user"
+  class Signup < BaseMutation
+    description "Register a new user"
     
-    argument :input, Types::LoginInputType, required: true, description: "Login credentials"
+    argument :input, Types::SignupInputType, required: true, description: "Signup details"
     
-    field :user, Types::UserType, null: true, description: "The authenticated user"
+    field :user, Types::UserType, null: true, description: "The created user"
     field :token, String, null: true, description: "JWT authentication token"
     field :refreshToken, String, null: true, description: "JWT refresh token"
     field :errors, [Types::UserErrorType], null: false, description: "Any errors that occurred"
     
     def resolve(input:)
-      # Find user by email
-      user = User.find_by(email: input[:email])
+      # Create new user
+      user = User.new(
+        firstName: input[:firstName],
+        lastName: input[:lastName],
+        email: input[:email],
+        password: input[:password],
+        role: input[:role] || 'staff'
+      )
       
-      # Check if user exists and password is correct
-      if user && user.authenticate(input[:password])
+      if user.save
         # Generate mock tokens (in production, use JWT)
         token = "mock-jwt-#{Time.current.to_i}"
         refresh_token = "mock-refresh-#{Time.current.to_i}"
@@ -26,11 +31,19 @@ module Mutations
           errors: []
         }
       else
+        # Convert Rails validation errors to GraphQL format
+        graphql_errors = user.errors.map do |error|
+          {
+            message: error.full_message,
+            field: error.attribute.to_s
+          }
+        end
+        
         {
           user: nil,
           token: nil,
           refresh_token: nil,
-          errors: [{ message: "Invalid email or password", field: "email" }]
+          errors: graphql_errors
         }
       end
     rescue => e
@@ -38,7 +51,7 @@ module Mutations
         user: nil,
         token: nil,
         refresh_token: nil,
-        errors: [{ message: "Authentication failed: #{e.message}", field: "general" }]
+        errors: [{ message: "Signup failed: #{e.message}", field: "general" }]
       }
     end
   end

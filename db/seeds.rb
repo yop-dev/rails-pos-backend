@@ -4,6 +4,16 @@
 
 puts "Creating sample data..."
 
+# Create admin user
+admin_user = User.find_or_create_by!(email: "admin@railspos.com") do |u|
+  u.firstName = "Admin"
+  u.lastName = "User"
+  u.role = "admin"
+  u.password = "password"
+end
+
+puts "Created admin user: #{admin_user.email} (Role: #{admin_user.role})"
+
 # Create a demo merchant
 merchant = Merchant.find_or_create_by!(email: "desilvajoner95@gmail.com") do |m|
   m.name = "Genie Orders"

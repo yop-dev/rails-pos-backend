@@ -24,5 +24,6 @@ module Types
     # Auth mutations
     field :login, mutation: Mutations::Login
     field :logout, mutation: Mutations::Logout
+    field :signup, mutation: Mutations::Signup
   end
 end
