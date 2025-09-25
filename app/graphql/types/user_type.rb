@@ -7,6 +7,6 @@ module Types
     field :lastName, String, null: false, description: "The user's last name"
     field :email, String, null: false, description: "The user's email address"
     field :role, String, null: false, description: "The user's role (admin or staff)"
-    field :createdAt, GraphQL::Types::ISO8601DateTime, null: false, description: "When the user was created"
+    field :createdAt, GraphQL::Types::ISO8601DateTime, null: false, description: "When the user was created", method: :created_at
   end
 end
