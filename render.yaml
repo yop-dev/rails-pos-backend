@@ -20,7 +20,7 @@ services:
       - key: APP_HOST
         value: rails-pos-backend.onrender.com
       - key: FRONTEND_URL
-        value: https://rails-pos-frontend-o07xqjpqe-yop-devs-projects.vercel.app
+        value: https://rails-pos-frontend.vercel.app
 
 databases:
   - name: rails-pos-db

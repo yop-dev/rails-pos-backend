@@ -12,7 +12,8 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
       ENV['FRONTEND_URL'],
       'http://localhost:5173',  # Vite dev server
       'http://localhost:3000',  # Alternative local port
-      'https://rails-pos-frontend-o07xqjpqe-yop-devs-projects.vercel.app', # Your current Vercel URL
+      'https://rails-pos-frontend.vercel.app', # Custom Vercel domain
+      'https://rails-pos-frontend-o07xqjpqe-yop-devs-projects.vercel.app', # Generated Vercel URL
       /\Ahttps:\/\/rails-pos-frontend-[a-zA-Z0-9]+-yop-devs-projects\.vercel\.app\z/ # Vercel pattern
     ].compact
 
