@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
+  options "up" => "graphql#options"
 
   # Favicon (to prevent 404 errors)
   get "/favicon.ico", to: proc { [204, {}, []] }
