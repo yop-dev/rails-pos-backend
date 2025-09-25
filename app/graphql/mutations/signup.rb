@@ -27,7 +27,7 @@ module Mutations
         {
           user: user,
           token: token,
-          refresh_token: refresh_token,
+          refreshToken: refresh_token,
           errors: []
         }
       else
@@ -42,7 +42,7 @@ module Mutations
         {
           user: nil,
           token: nil,
-          refresh_token: nil,
+          refreshToken: nil,
           errors: graphql_errors
         }
       end
@@ -50,7 +50,7 @@ module Mutations
       {
         user: nil,
         token: nil,
-        refresh_token: nil,
+        refreshToken: nil,
         errors: [{ message: "Signup failed: #{e.message}", field: "general" }]
       }
     end

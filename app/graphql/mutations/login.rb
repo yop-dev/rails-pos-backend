@@ -13,6 +13,14 @@ module Mutations
       # Find user by email
       user = User.find_by(email: input[:email])
       
+      # Debug logging
+      Rails.logger.info "Login attempt for email: #{input[:email]}"
+      Rails.logger.info "User found: #{user ? 'Yes' : 'No'}"
+      if user
+        Rails.logger.info "User details: #{user.firstName} #{user.lastName} (#{user.role})"
+        Rails.logger.info "Password check: #{user.authenticate(input[:password]) ? 'Success' : 'Failed'}"
+      end
+      
       # Check if user exists and password is correct
       if user && user.authenticate(input[:password])
         # Generate mock tokens (in production, use JWT)
@@ -22,14 +30,14 @@ module Mutations
         {
           user: user,
           token: token,
-          refresh_token: refresh_token,
+          refreshToken: refresh_token,
           errors: []
         }
       else
         {
           user: nil,
           token: nil,
-          refresh_token: nil,
+          refreshToken: nil,
           errors: [{ message: "Invalid email or password", field: "email" }]
         }
       end
@@ -37,7 +45,7 @@ module Mutations
       {
         user: nil,
         token: nil,
-        refresh_token: nil,
+        refreshToken: nil,
         errors: [{ message: "Authentication failed: #{e.message}", field: "general" }]
       }
     end
