@@ -20,5 +20,9 @@ module Types
 
     # Customer mutations
     field :create_customer, mutation: Mutations::CreateCustomer
+
+    # Auth mutations
+    field :login, mutation: Mutations::Login
+    field :logout, mutation: Mutations::Logout
   end
 end
