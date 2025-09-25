@@ -120,6 +120,14 @@ module Mutations
           order.skip_calculate_totals = true
           order.skip_total_validation = true
           order.save!
+          
+          # Manually trigger email notification since we skipped callbacks
+          begin
+            OrderMailer.order_placed(order).deliver_later
+            Rails.logger.info "Order confirmation email queued for customer: #{order.customer.email}"
+          rescue => e
+            Rails.logger.error "Failed to send order confirmation email: #{e.message}"
+          end
 
           {
             order: order,

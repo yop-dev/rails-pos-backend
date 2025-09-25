@@ -87,43 +87,24 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>Order Confirmation</h1>
-        <p>Thank you for your order!</p>
+        <h1>Order Placed Successfully</h1>
       </div>
 
       <div class="order-details">
-        <h2>Order Reference: <%= @order.reference %></h2>
-        <p><strong>Order Date:</strong> <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
-        <p><strong>Order Type:</strong> <%= @order.source.humanize %></p>
+        <h2>Order Reference Number: <%= @order.reference %></h2>
       </div>
 
       <div class="section">
         <h3>Customer Information</h3>
-        <p><strong>Name:</strong> <%= @customer.full_name %></p>
-        <p><strong>Email:</strong> <%= @customer.email %></p>
-        <% if @customer.phone %>
-          <p><strong>Phone:</strong> <%= @customer.phone %></p>
-        <% end %>
+        <p><strong>Full Name:</strong> <%= @customer_full_name %></p>
+        <p><strong>Email Address:</strong> <%= @customer_email %></p>
+        <p><strong>Mobile Number:</strong> <%= @customer_mobile %></p>
       </div>
 
-      <% if @delivery_address %>
-        <div class="section">
-          <h3>Delivery Address</h3>
-          <p>
-            <%= @delivery_address.unit_floor_building + ", " if @delivery_address.unit_floor_building %>
-            <%= @delivery_address.street %><br>
-            <%= @delivery_address.barangay %>, <%= @delivery_address.city %><br>
-            <%= @delivery_address.province %>
-            <%= ", " + @delivery_address.postal_code if @delivery_address.postal_code %>
-          </p>
-          <% if @delivery_address.landmark %>
-            <p><strong>Landmark:</strong> <%= @delivery_address.landmark %></p>
-          <% end %>
-          <% if @delivery_address.remarks %>
-            <p><strong>Delivery Remarks:</strong> <%= @delivery_address.remarks %></p>
-          <% end %>
-        </div>
-      <% end %>
+      <div class="section">
+        <h3>Delivery Address</h3>
+        <p><%= @formatted_delivery_address %></p>
+      </div>
 
       <div class="section">
         <h3>Order Items</h3>
@@ -139,41 +120,27 @@
       </div>
 
       <div class="section">
-        <h3>Shipping & Payment</h3>
-        <% if @order.shipping_method_label %>
-          <p><strong>Shipping Method:</strong> <%= @order.shipping_method_label %></p>
-        <% end %>
-        <% if @order.payment_method_label %>
-          <p><strong>Payment Method:</strong> <%= @order.payment_method_label %></p>
-        <% end %>
+        <h3>Shipping & Payment Methods</h3>
+        <p><strong>Shipping Method:</strong> <%= @shipping_method %></p>
+        <p><strong>Payment Method:</strong> <%= @payment_method %></p>
       </div>
 
       <div class="section">
-        <h3>Order Summary</h3>
+        <h3>Summary</h3>
         <div class="item">
           <span>Subtotal:</span>
-          <span><%= @order.subtotal.formatted %></span>
+          <span><%= @subtotal_amount %></span>
         </div>
-        <% if @order.shipping_fee_cents > 0 %>
-          <div class="item">
-            <span>Shipping Fee:</span>
-            <span><%= @order.shipping_fee.formatted %></span>
-          </div>
-        <% end %>
-        <% if @order.convenience_fee_cents > 0 %>
-          <div class="item">
-            <span>Convenience Fee:</span>
-            <span><%= @order.convenience_fee.formatted %></span>
-          </div>
-        <% end %>
-        <% if @order.discount_cents > 0 %>
-          <div class="item">
-            <span>Discount (<%= @order.voucher_code %>):</span>
-            <span>-<%= @order.discount.formatted %></span>
-          </div>
-        <% end %>
+        <div class="item">
+          <span>Shipping Fee:</span>
+          <span><%= @shipping_fee_amount %></span>
+        </div>
+        <div class="item">
+          <span>Convenience Fee:</span>
+          <span><%= @convenience_fee_amount %></span>
+        </div>
         <div class="total">
-          Total: <%= @order.total.formatted %>
+          Grand Total: <%= @grand_total_amount %>
         </div>
       </div>
 

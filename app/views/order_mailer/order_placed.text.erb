@@ -1,32 +1,17 @@
-ORDER CONFIRMATION
-==================
+ORDER PLACED SUCCESSFULLY
+=========================
 
-Thank you for your order!
-
-Order Reference: <%= @order.reference %>
-Order Date: <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %>
-Order Type: <%= @order.source.humanize %>
+Order Reference Number: <%= @order.reference %>
 
 CUSTOMER INFORMATION
 ====================
-Name: <%= @customer.full_name %>
-Email: <%= @customer.email %>
-<% if @customer.phone %>Phone: <%= @customer.phone %><% end %>
+Full Name: <%= @customer_full_name %>
+Email Address: <%= @customer_email %>
+Mobile Number: <%= @customer_mobile %>
 
-<% if @delivery_address %>
 DELIVERY ADDRESS
 ================
-<%= @delivery_address.unit_floor_building + ", " if @delivery_address.unit_floor_building %><%= @delivery_address.street %>
-<%= @delivery_address.barangay %>, <%= @delivery_address.city %>
-<%= @delivery_address.province %><%= ", " + @delivery_address.postal_code if @delivery_address.postal_code %>
-<% if @delivery_address.landmark %>
-Landmark: <%= @delivery_address.landmark %>
-<% end %>
-<% if @delivery_address.remarks %>
-Delivery Remarks: <%= @delivery_address.remarks %>
-<% end %>
-
-<% end %>
+<%= @formatted_delivery_address %>
 ORDER ITEMS
 ===========
 <% @order_items.each do |item| %>
@@ -35,19 +20,21 @@ Qty: <%= item.quantity %> × <%= item.unit_price.formatted %> = <%= item.total_p
 
 <% end %>
 
-SHIPPING & PAYMENT
-==================
-<% if @order.shipping_method_label %>Shipping Method: <%= @order.shipping_method_label %><% end %>
-<% if @order.payment_method_label %>Payment Method: <%= @order.payment_method_label %><% end %>
+SHIPPING METHOD
+===============
+<%= @shipping_method %>
 
-ORDER SUMMARY
-=============
-Subtotal: <%= @order.subtotal.formatted %>
-<% if @order.shipping_fee_cents > 0 %>Shipping Fee: <%= @order.shipping_fee.formatted %><% end %>
-<% if @order.convenience_fee_cents > 0 %>Convenience Fee: <%= @order.convenience_fee.formatted %><% end %>
-<% if @order.discount_cents > 0 %>Discount (<%= @order.voucher_code %>): -<%= @order.discount.formatted %><% end %>
+PAYMENT METHOD
+==============
+<%= @payment_method %>
+
+SUMMARY
+=======
+Subtotal: <%= @subtotal_amount %>
+Shipping Fee: <%= @shipping_fee_amount %>
+Convenience Fee: <%= @convenience_fee_amount %>
 -----------------------------------
-Total: <%= @order.total.formatted %>
+Grand Total: <%= @grand_total_amount %>
 
 <% if @order.payment_link %>
 PAYMENT

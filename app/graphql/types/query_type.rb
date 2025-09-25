@@ -14,9 +14,14 @@ module Types
     end
 
     # Customer-related queries
+    field :all_customers, [Types::CustomerType], null: false,
+          description: "Get all customers for dropdown (no search required)" do
+      argument :limit, Integer, required: false, description: "Limit number of results (default: 100)"
+    end
+    
     field :customers, [Types::CustomerType], null: false,
           description: "Search for customers" do
-      argument :search, Types::CustomersSearchInput, required: true
+      argument :search, Types::CustomersSearchInput, required: false
       argument :first, Integer, required: false
       argument :after, String, required: false
     end
@@ -56,28 +61,38 @@ module Types
       
       scope.order(:name)
     end
+    
+    def all_customers(limit: 100)
+      current_merchant.customers
+                     .order(:first_name, :last_name)
+                     .limit(limit)
+    end
 
-    def customers(search:, first: nil, after: nil)
+    def customers(search: nil, first: nil, after: nil)
       start_time = Time.current
       scope = current_merchant.customers
-      search_type = nil
+      search_type = 'all'
       search_value = nil
       
-      if search[:email]
-        search_type = 'email'
-        search_value = search[:email]
-        scope = scope.search_by_email(search[:email])
-      elsif search[:phone]
-        search_type = 'phone'
-        search_value = search[:phone]
-        scope = scope.search_by_phone(search[:phone])
-      elsif search[:term]
-        search_type = 'term'
-        search_value = search[:term]
-        scope = scope.search_by_term(search[:term])
+      # If search is provided and has values, filter accordingly
+      if search.present?
+        if search[:email].present?
+          search_type = 'email'
+          search_value = search[:email]
+          scope = scope.search_by_email(search[:email])
+        elsif search[:phone].present?
+          search_type = 'phone'
+          search_value = search[:phone]
+          scope = scope.search_by_phone(search[:phone])
+        elsif search[:term].present?
+          search_type = 'term'
+          search_value = search[:term]
+          scope = scope.search_by_term(search[:term])
+        end
       end
       
-      results = scope.order(:first_name, :last_name)
+      # If no search provided or search had no values, return all customers (limited)
+      results = scope.order(:first_name, :last_name).limit(first || 100)
       end_time = Time.current
       duration = (end_time - start_time) * 1000 # Convert to milliseconds
       
