@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   # GraphQL endpoint
   post "/graphql", to: "graphql#execute"
+  
+  # Debug endpoint to test backend
+  get "/debug", to: "graphql#debug"
 
   # GraphiQL development interface
   if Rails.env.development?

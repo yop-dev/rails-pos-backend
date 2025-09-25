@@ -6,6 +6,26 @@ class GraphqlController < ApplicationController
   # but you'll have to authenticate your user separately
   # protect_from_forgery with: :null_session
 
+  def debug
+    begin
+      # Test basic functionality
+      merchant = current_merchant
+      render json: { 
+        status: "ok", 
+        environment: Rails.env,
+        database_connected: ActiveRecord::Base.connected?,
+        merchant_count: Merchant.count,
+        current_merchant: merchant&.name
+      }
+    rescue => e
+      render json: { 
+        status: "error", 
+        error: e.message,
+        backtrace: e.backtrace.first(5)
+      }
+    end
+  end
+  
   def execute
     # Try to process multipart request first
     multipart_data = process_multipart_request
