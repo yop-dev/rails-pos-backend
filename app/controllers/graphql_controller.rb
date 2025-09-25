@@ -64,6 +64,11 @@ class GraphqlController < ApplicationController
     end
   end
   
+  def options
+    # Handle CORS preflight request
+    head :ok
+  end
+  
   def execute
     # Try to process multipart request first
     multipart_data = process_multipart_request
