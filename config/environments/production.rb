@@ -68,19 +68,22 @@ Rails.application.configure do
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_deliveries = true
   
-  # Gmail SMTP configuration for production
-  config.action_mailer.delivery_method = :smtp
+  # Resend API configuration for production
+  # MUST use API since Render free tier blocks SMTP ports
+  config.action_mailer.delivery_method = :resend
+  
   config.action_mailer.default_url_options = { 
     host: ENV['APP_HOST'] || 'your-app-domain.com',
     protocol: 'https'
   }
   
+  # Maileroo SMTP settings (works on all platforms including Render)
   config.action_mailer.smtp_settings = {
-    address: 'smtp.gmail.com',
+    address: 'smtp.maileroo.com',
     port: 587,
-    domain: ENV['GMAIL_DOMAIN'] || ENV['APP_HOST'] || 'your-app-domain.com',
-    user_name: ENV['GMAIL_USERNAME'],
-    password: ENV['GMAIL_APP_PASSWORD'],
+    domain: ENV['APP_HOST'] || 'railspos.maileroo.app',
+    user_name: ENV['MAILEROO_SMTP_EMAIL'],
+    password: ENV['MAILEROO_SMTP_PASSWORD'],
     authentication: 'plain',
     enable_starttls_auto: true,
     open_timeout: 10,

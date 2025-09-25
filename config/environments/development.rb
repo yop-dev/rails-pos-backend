@@ -38,21 +38,23 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
   
-  # For development, you can use either letter_opener_web (for local testing)
-  # or Gmail SMTP (to test actual email delivery)
+  # For development, you can use different email delivery methods:
   # Uncomment the method you want to use:
   
   # Option 1: Use letter_opener_web for local email preview (default)
   # config.action_mailer.delivery_method = :letter_opener_web
   
-  # Option 2: Use Gmail SMTP for actual email delivery in development
-  config.action_mailer.delivery_method = :smtp
+  # Option 2: Use Resend API for actual email delivery in development
+  config.action_mailer.delivery_method = :resend
+  
+  # Option 3: Use SMTP for actual email delivery in development (not recommended for Render)
+  # config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: 'smtp.gmail.com',
+    address: 'smtp.maileroo.com',
     port: 587,
-    domain: ENV['GMAIL_DOMAIN'] || 'localhost',
-    user_name: ENV['GMAIL_USERNAME'],
-    password: ENV['GMAIL_APP_PASSWORD'],
+    domain: 'railspos.maileroo.app',
+    user_name: ENV['MAILEROO_SMTP_EMAIL'],
+    password: ENV['MAILEROO_SMTP_PASSWORD'],
     authentication: 'plain',
     enable_starttls_auto: true,
     open_timeout: 10,

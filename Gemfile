@@ -51,6 +51,12 @@ gem "redis", ">= 4.0.1"
 # Email preview in development
 gem "letter_opener_web", group: :development
 
+# HTTP client for API calls
+gem "httparty", "~> 0.21"
+
+# Resend for email delivery (works on Render free tier)
+gem "resend", "~> 0.9"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]
