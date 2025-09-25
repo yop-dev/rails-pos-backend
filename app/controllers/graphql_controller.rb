@@ -15,6 +15,8 @@ class GraphqlController < ApplicationController
         environment: Rails.env,
         database_connected: ActiveRecord::Base.connected?,
         merchant_count: Merchant.count,
+        user_count: User.count,
+        users: User.limit(5).pluck(:email, :firstName, :lastName, :role),
         current_merchant: merchant&.name
       }
     rescue => e
