@@ -2,15 +2,14 @@ module Mutations
   class UpdateProduct < Types::BaseMutation
     description "Update an existing product"
 
-    argument :id, ID, required: true
     argument :input, Types::ProductUpdateInput, required: true
 
     field :product, Types::ProductType, null: true
     field :errors, [Types::UserErrorType], null: false
 
-    def resolve(id:, input:)
+    def resolve(input:)
       merchant = current_merchant
-      product = merchant.products.find_by(id: id)
+      product = merchant.products.find_by(id: input.id)
 
       unless product
         return {
