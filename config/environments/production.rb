@@ -61,8 +61,9 @@ Rails.application.configure do
   # config.cache_store = :mem_cache_store
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter = :resque
-  # config.active_job.queue_name_prefix = "rails_pos_backend_production"
+  # For now, use inline processing for emails since we don't have Redis/Resque on Render free tier
+  config.active_job.queue_adapter = :inline
+  config.active_job.queue_name_prefix = "rails_pos_backend_production"
 
   config.action_mailer.perform_caching = false
   config.action_mailer.raise_delivery_errors = true
