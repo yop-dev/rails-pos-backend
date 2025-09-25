@@ -58,7 +58,6 @@ module Mutations
       end
       
       # Initialize other required fields
-      order.discount_cents = 0
       order.subtotal_cents = 0
       order.total_cents = 0
       
@@ -104,16 +103,13 @@ module Mutations
           # Keep the fees we set earlier
           convenience_fee = order.convenience_fee_cents || 0
           shipping_fee = order.shipping_fee_cents || 0
-          discount = 0
-          
-          # Calculate total: subtotal + shipping + convenience - discount
-          calculated_total = calculated_subtotal + shipping_fee + convenience_fee - discount
+          # Calculate total: subtotal + shipping + convenience
+          calculated_total = calculated_subtotal + shipping_fee + convenience_fee
           order.total_cents = calculated_total
-          order.discount_cents = discount
           
           # Debug logging
-          Rails.logger.debug "Final calculation - Subtotal: #{calculated_subtotal}, Shipping: #{shipping_fee}, Convenience: #{convenience_fee}, Discount: #{discount}, Total: #{calculated_total}"
-          Rails.logger.debug "Order state before save - subtotal_cents: #{order.subtotal_cents}, shipping_fee_cents: #{order.shipping_fee_cents}, convenience_fee_cents: #{order.convenience_fee_cents}, discount_cents: #{order.discount_cents}, total_cents: #{order.total_cents}"
+          Rails.logger.debug "Final calculation - Subtotal: #{calculated_subtotal}, Shipping: #{shipping_fee}, Convenience: #{convenience_fee}, Total: #{calculated_total}"
+          Rails.logger.debug "Order state before save - subtotal_cents: #{order.subtotal_cents}, shipping_fee_cents: #{order.shipping_fee_cents}, convenience_fee_cents: #{order.convenience_fee_cents}, total_cents: #{order.total_cents}"
           Rails.logger.debug "Final order method labels - payment_method_label: #{order.payment_method_label.inspect}, shipping_method_label: #{order.shipping_method_label.inspect}"
           
           # Skip callback but allow validation (total validation is already skipped)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 8) do
+ActiveRecord::Schema[7.1].define(version: 9) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -79,11 +79,9 @@ ActiveRecord::Schema[7.1].define(version: 8) do
     t.string "reference", null: false
     t.integer "source", default: 0, null: false
     t.integer "status", default: 0, null: false
-    t.string "voucher_code"
     t.integer "subtotal_cents", default: 0, null: false
     t.integer "shipping_fee_cents", default: 0, null: false
     t.integer "convenience_fee_cents", default: 0, null: false
-    t.integer "discount_cents", default: 0, null: false
     t.integer "total_cents", default: 0, null: false
     t.string "shipping_method_code"
     t.string "shipping_method_label"

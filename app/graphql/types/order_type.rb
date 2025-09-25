@@ -9,16 +9,13 @@ module Types
     field :customer, Types::CustomerType, null: false
     field :delivery_address, Types::AddressType, null: true
     field :items, [Types::OrderItemType], null: false
-    field :voucher_code, String, null: true
     field :subtotal_cents, Integer, null: false
     field :shipping_fee_cents, Integer, null: false
     field :convenience_fee_cents, Integer, null: false
-    field :discount_cents, Integer, null: false
     field :total_cents, Integer, null: false
     field :subtotal, Types::MoneyType, null: false
     field :shipping_fee, Types::MoneyType, null: false
     field :convenience_fee, Types::MoneyType, null: false
-    field :discount, Types::MoneyType, null: false
     field :total, Types::MoneyType, null: false
     field :shipping_method_code, String, null: true
     field :shipping_method_label, String, null: true
@@ -47,9 +44,6 @@ module Types
       object.convenience_fee
     end
 
-    def discount
-      object.discount
-    end
 
     def total
       object.total

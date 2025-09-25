@@ -5,8 +5,8 @@
 puts "Creating sample data..."
 
 # Create a demo merchant
-merchant = Merchant.find_or_create_by!(email: "merchant@example.com") do |m|
-  m.name = "Demo Coffee Shop"
+merchant = Merchant.find_or_create_by!(email: "desilvajoner95@gmail.com") do |m|
+  m.name = "Genie Orders"
   m.phone = "09171234567"
   m.address = "123 Main Street, Quezon City, Metro Manila"
 end

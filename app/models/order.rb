@@ -17,7 +17,7 @@ class Order < ApplicationRecord
   validates :source, presence: true
   validates :status, presence: true
   validates :subtotal_cents, :shipping_fee_cents, :convenience_fee_cents, 
-            :discount_cents, :total_cents, numericality: { greater_than_or_equal_to: 0 }
+            :total_cents, numericality: { greater_than_or_equal_to: 0 }
   
   validate :delivery_address_required_for_online_physical_orders
   validate :total_cents_calculation
@@ -44,9 +44,6 @@ class Order < ApplicationRecord
     Product::Money.new(convenience_fee_cents, "PHP")
   end
 
-  def discount
-    Product::Money.new(discount_cents, "PHP")
-  end
 
   def total
     Product::Money.new(total_cents, "PHP")
@@ -105,21 +102,8 @@ class Order < ApplicationRecord
       self.subtotal_cents = order_items.sum(:total_price_cents)
     end
     
-    # Apply discount if voucher is present
-    if voucher_code.present?
-      begin
-        discount_amount = VoucherService.new(self, voucher_code).compute_discount
-        self.discount_cents = discount_amount
-      rescue => e
-        Rails.logger.error "Voucher calculation failed: #{e.message}"
-        self.discount_cents = 0
-      end
-    else
-      self.discount_cents = 0
-    end
-
-    # Calculate total: subtotal + shipping + convenience - discount
-    self.total_cents = subtotal_cents + shipping_fee_cents + convenience_fee_cents - discount_cents
+    # Calculate total: subtotal + shipping + convenience
+    self.total_cents = subtotal_cents + shipping_fee_cents + convenience_fee_cents
   end
 
   def delivery_address_required_for_online_physical_orders
@@ -131,9 +115,9 @@ class Order < ApplicationRecord
   def total_cents_calculation
     return if skip_total_validation
     
-    expected_total = subtotal_cents + shipping_fee_cents + convenience_fee_cents - discount_cents
+    expected_total = subtotal_cents + shipping_fee_cents + convenience_fee_cents
     if total_cents != expected_total
-      errors.add(:total_cents, "must equal subtotal + shipping fee + convenience fee - discount")
+      errors.add(:total_cents, "must equal subtotal + shipping fee + convenience fee")
     end
   end
 
