@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: rails-pos-backend
+    env: ruby
+    buildCommand: bundle install && bundle exec rails db:migrate && bundle exec rails db:seed
+    startCommand: bundle exec puma -C config/puma.rb
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rails-pos-db
+          property: connectionString
+      - key: RAILS_ENV
+        value: production
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: APP_HOST
+        value: rails-pos-backend.onrender.com
+
+databases:
+  - name: rails-pos-db
+    databaseName: rails_pos_production
+    user: rails_pos_user
