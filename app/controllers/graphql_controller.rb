@@ -26,6 +26,44 @@ class GraphqlController < ApplicationController
     end
   end
   
+  def test_email
+    begin
+      # Get test email from params
+      test_email = params[:email] || 'desilvajoner95@gmail.com'
+      
+      # Test Resend configuration
+      resend_config = {
+        api_key_present: ENV['RESEND_API_KEY'].present?,
+        api_key_length: ENV['RESEND_API_KEY']&.length,
+        from_email: ENV['RESEND_FROM_EMAIL'],
+        from_name: ENV['RESEND_FROM_NAME'],
+        delivery_method: Rails.application.config.action_mailer.delivery_method
+      }
+      
+      # Test Resend service directly
+      resend_service = ResendService.new
+      result = resend_service.send_email(
+        to: test_email,
+        subject: "Test Email from Rails POS - #{Time.current}",
+        html_content: "<h1>Test Email</h1><p>If you receive this, Resend is working correctly!</p><p>Sent at: #{Time.current}</p>",
+        text_content: "Test Email - If you receive this, Resend is working correctly! Sent at: #{Time.current}"
+      )
+      
+      render json: {
+        status: "ok",
+        resend_config: resend_config,
+        test_email: test_email,
+        send_result: result
+      }
+    rescue => e
+      render json: {
+        status: "error",
+        error: e.message,
+        backtrace: e.backtrace.first(10)
+      }
+    end
+  end
+  
   def execute
     # Try to process multipart request first
     multipart_data = process_multipart_request

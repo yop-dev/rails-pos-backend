@@ -4,6 +4,9 @@ Rails.application.routes.draw do
   
   # Debug endpoint to test backend
   get "/debug", to: "graphql#debug"
+  
+  # Test email endpoint
+  get "/test-email", to: "graphql#test_email"
 
   # GraphiQL development interface
   if Rails.env.development?
