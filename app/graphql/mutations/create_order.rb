@@ -24,6 +24,10 @@ module Mutations
       order_items_data = validate_and_prepare_items(merchant, input.items)
       return order_items_data if order_items_data.is_a?(Hash) && order_items_data[:errors] # Error response
 
+      # Validate payment method compatibility with product types
+      payment_validation = validate_payment_method_for_products(order_items_data, input.payment_method_code)
+      return payment_validation if payment_validation.is_a?(Hash) && payment_validation[:errors] # Error response
+
       # Get payment method info
       payment_info = get_payment_info(input.payment_method_code)
       
@@ -229,6 +233,27 @@ module Mutations
       end
 
       items_data
+    end
+
+    def validate_payment_method_for_products(items_data, payment_method_code)
+      # Check if any digital products are being ordered with cash on delivery
+      if payment_method_code == 'cash'
+        digital_products = items_data.select { |item| item[:product].digital? }
+        
+        if digital_products.any?
+          digital_product_names = digital_products.map { |item| item[:product].name }.join(", ")
+          return {
+            order: nil,
+            errors: [{ 
+              message: "Cash on delivery is not available for digital products: #{digital_product_names}", 
+              field: "payment_method_code" 
+            }]
+          }
+        end
+      end
+      
+      # Validation passed
+      nil
     end
 
     def get_shipping_info(shipping_method_code, delivery_input, items_input)
