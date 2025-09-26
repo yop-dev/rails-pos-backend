@@ -13,8 +13,8 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
       'http://localhost:5173',  # Vite dev server
       'http://localhost:3000',  # Alternative local port
       'https://rails-pos-frontend.vercel.app', # Custom Vercel domain
-      'https://rails-pos-frontend-o07xqjpqe-yop-devs-projects.vercel.app', # Generated Vercel URL
-      /\Ahttps:\/\/rails-pos-frontend-[a-zA-Z0-9]+-yop-devs-projects\.vercel\.app\z/ # Vercel pattern
+      'https://rails-pos-frontend-mallxffy9-yop-devs-projects.vercel.app', # Current generated URL
+      /\Ahttps:\/\/rails-pos-frontend.*\.vercel\.app\z/ # Match all Vercel deployment URLs
     ].compact
 
     resource "*",
