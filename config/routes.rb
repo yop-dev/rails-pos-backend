@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   # GraphQL endpoint
   post "/graphql", to: "graphql#execute"
+  get "/graphql", to: "graphql#info"  # Handle GET requests with info
   options "/graphql", to: "graphql#options"
   
   # Debug endpoint to test backend

@@ -71,6 +71,21 @@ class GraphqlController < ApplicationController
     head :ok
   end
   
+  def info
+    # Handle GET requests to /graphql with helpful information
+    render json: {
+      message: "GraphQL endpoint is active",
+      note: "This endpoint accepts POST requests only",
+      schema_url: "POST #{request.base_url}/graphql",
+      example: {
+        query: "query { __schema { types { name } } }",
+        method: "POST",
+        content_type: "application/json"
+      },
+      timestamp: Time.current
+    }
+  end
+  
   def execute
     # Try to process multipart request first
     multipart_data = process_multipart_request
